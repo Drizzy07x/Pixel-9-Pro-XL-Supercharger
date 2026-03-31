@@ -1,7 +1,7 @@
- 
 id=p9pxl_supercharger
 name=Pixel 9 Pro XL Supercharger
-version=v1.4
-versionCode=5
+version=v1.5 Stable
+versionCode=15
 author=Drizzy_07
-description=Status: [WAITING] - Initializing system optimizations...⏳
+description= description=System-level performance tuning for Pixel 9 Pro XL (komodo). Status: [WAITING] ⏳
+updateJson=https://raw.githubusercontent.com/Drizzy07x/Pixel-9-Pro-XL-Supercharger/main/update.json
