@@ -3,26 +3,23 @@ name: Supercharger Auto-Release Engine
 on:
   push:
     tags:
-      - 'v*' # Triggers on any tag starting with v (e.g., v1.5.1, v1.6-beta)
+      - 'v*'
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Required to create releases and upload assets
+      contents: write
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Extract Version and Release Type
+      - name: Extract Version Info
         id: version_logic
         run: |
-          # Get the tag name from the git reference
           TAG_NAME=${GITHUB_REF#refs/tags/}
           echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-          
-          # Determine if this is a pre-release (beta)
           if [[ "$TAG_NAME" == *"-beta"* ]]; then
             echo "is_prerelease=true" >> $GITHUB_OUTPUT
             echo "release_title=Pixel 9 Pro Series Supercharger $TAG_NAME (Beta)" >> $GITHUB_OUTPUT
@@ -31,18 +28,12 @@ jobs:
             echo "release_title=Pixel 9 Pro Series Supercharger $TAG_NAME" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create Production ZIP
+      - name: Create Module ZIP
         run: |
-          # Package the module while excluding development and GitHub-specific files
           zip -r "Supercharger-${{ steps.version_logic.outputs.tag_name }}.zip" . \
-          -x ".git/*" \
-          -x ".github/*" \
-          -x ".gitignore" \
-          -x "README.md" \
-          -x "LICENSE" \
-          -x "changelog.md"
+          -x ".git/*" ".github/*" ".gitignore" "README.md" "LICENSE" "changelog.md"
 
-      - name: Publish GitHub Release
+      - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
           files: Supercharger-${{ steps.version_logic.outputs.tag_name }}.zip
