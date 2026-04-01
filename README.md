@@ -1,4 +1,4 @@
-# Pixel 9 Pro XL Supercharger (v1.5 Final Stable) 🚀
+# Pixel 9 Pro XL Supercharger (v1.5.1 Final Stable) 🚀
 
 The most advanced performance and efficiency engine specifically designed for the **Google Pixel 9 Pro XL (komodo)** running **Android 16 (Evolution X)**.
 
