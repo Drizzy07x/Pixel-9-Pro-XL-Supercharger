@@ -1,6 +1,6 @@
 #!/system/bin/sh
 # =============================================================
-# PIXEL 9 PRO SERIES SUPERCHARGER v1.6-BETA.5
+# PIXEL 9 PRO SERIES SUPERCHARGER v1.6 STABLE
 # Intelligent Pivot & Deep Audit - Developed by: Drizzy_07
 # =============================================================
 
@@ -9,7 +9,6 @@ PROP_FILE="$MODDIR/module.prop"
 LOG_FILE="$MODDIR/debug.log"
 
 # --- 1. ENHANCED AUDIT FUNCTIONS ---
-# For Linux Kernel Paths
 verify_tweak() {
     local name="$1"; local path="$2"; local expected="$3"
     if [ -f "$path" ]; then
@@ -23,7 +22,6 @@ verify_tweak() {
     fi
 }
 
-# For Android System Properties (resetprop)
 verify_prop() {
     local name="$1"; local prop="$2"; local expected="$3"
     local current=$(getprop "$prop")
@@ -37,7 +35,7 @@ verify_prop() {
 # --- 2. LOG INITIALIZATION ---
 if [ ! -f "$LOG_FILE" ]; then touch "$LOG_FILE"; chmod 0666 "$LOG_FILE"; fi
 echo "===============================================" > "$LOG_FILE"
-echo "   SUPERCHARGER v1.6-BETA.5 DEEP AUDIT" >> "$LOG_FILE"
+echo "   SUPERCHARGER v1.6 STABLE DEEP AUDIT" >> "$LOG_FILE"
 echo "   Device: Pixel 9 Pro XL (Zumapro/Tensor G4)" >> "$LOG_FILE"
 echo "   Date: $(date)" >> "$LOG_FILE"
 echo "===============================================" >> "$LOG_FILE"
@@ -51,7 +49,6 @@ echo "[✅] System ready. Deploying Smart Engine..." >> "$LOG_FILE"
 echo "" >> "$LOG_FILE"
 echo "[🧠] SYSTEM & RAM AUDIT:" >> "$LOG_FILE"
 
-# System Tweaks Application
 resetprop dalvik.vm.heapstartsize 32m
 resetprop dalvik.vm.heapgrowthlimit 512m
 resetprop dalvik.vm.heapsize 1g
@@ -59,7 +56,6 @@ resetprop debug.hwui.renderer skiavk
 resetprop persist.sys.touch.latency 0
 resetprop persist.sys.ui.hw 1
 
-# System Tweaks Verification
 verify_prop "Dalvik Heap Start" "dalvik.vm.heapstartsize" "32m"
 verify_prop "Dalvik Heap Growth" "dalvik.vm.heapgrowthlimit" "512m"
 verify_prop "Dalvik Heap Size" "dalvik.vm.heapsize" "1g"
@@ -71,23 +67,19 @@ verify_prop "Hardware UI" "persist.sys.ui.hw" "1"
 echo "" >> "$LOG_FILE"
 echo "[⚡] VIRTUAL MEMORY & STORAGE AUDIT:" >> "$LOG_FILE"
 
-# Virtual Memory Application
 echo 60 > /proc/sys/vm/vfs_cache_pressure
 echo 20 > /proc/sys/vm/dirty_ratio
 echo 30 > /proc/sys/vm/swappiness
 
-# Virtual Memory Verification
 verify_tweak "VFS Cache Pressure" "/proc/sys/vm/vfs_cache_pressure" "60"
 verify_tweak "VM Dirty Ratio" "/proc/sys/vm/dirty_ratio" "20"
 verify_tweak "VM Swappiness" "/proc/sys/vm/swappiness" "30"
 
-# Storage Application (Adapted to Zumapro physical limits)
 for dev in sda sdb sdc; do
     if [ -d "/sys/block/$dev" ]; then
         echo none > "/sys/block/$dev/queue/scheduler"
         echo 1024 > "/sys/block/$dev/queue/read_ahead_kb"
         
-        # Block Device Verification
         verify_tweak "UFS Scheduler ($dev)" "/sys/block/$dev/queue/scheduler" "none"
         verify_tweak "UFS Read Ahead ($dev)" "/sys/block/$dev/queue/read_ahead_kb" "1024"
     fi
@@ -97,14 +89,12 @@ done
 echo "" >> "$LOG_FILE"
 echo "[🌐] NETWORK AUDIT:" >> "$LOG_FILE"
 
-# Network Application (Optimizing Cubic for Mobile Data)
 echo "fq" > /proc/sys/net/core/default_qdisc
 sleep 1
 echo "cubic" > /proc/sys/net/ipv4/tcp_congestion_control
 echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
 echo 3 > /proc/sys/net/ipv4/tcp_fastopen
 
-# Network Verification
 verify_tweak "Network Qdisc" "/proc/sys/net/core/default_qdisc" "fq"
 verify_tweak "TCP Congestion" "/proc/sys/net/ipv4/tcp_congestion_control" "cubic"
 verify_tweak "TCP Socket Reuse" "/proc/sys/net/ipv4/tcp_tw_reuse" "1"
@@ -119,18 +109,15 @@ echo "[PASS] IRQ Balancer: Daemon stopped" >> "$LOG_FILE"
 
 IRQ_EFF=0; IRQ_MID=0; IRQ_PERF=0
 
-# Default: Efficiency Cores (0-6)
 for irq in /proc/irq/*; do
     [ -f "$irq/smp_affinity" ] && echo "7f" > "$irq/smp_affinity" 2>/dev/null && IRQ_EFF=$((IRQ_EFF + 1))
 done
 
-# Mid-Cores (4-6) for I/O & Network
 for irq in /proc/irq/*; do
     if grep -q -E "ufshc|pcie|modem|wlan" "$irq/name" 2>/dev/null; then
         echo "70" > "$irq/smp_affinity" 2>/dev/null
         IRQ_MID=$((IRQ_MID + 1))
     fi
-    # Perf-Cores (4-7) for Touchscreen
     if grep -q -E "touch|goodix|sec_ts" "$irq/name" 2>/dev/null; then
         echo "f0" > "$irq/smp_affinity" 2>/dev/null
         IRQ_PERF=$((IRQ_PERF + 1))
@@ -146,9 +133,9 @@ update_dashboard() {
     T_RAW=$(cat /sys/class/power_supply/battery/temp)
     T_UI="$((T_RAW / 10)).$((T_RAW % 10))°C"
     if grep -q "FAIL" "$LOG_FILE"; then
-        STATUS="Status: [⚠️] v1.6-B5 | 🌡️ $T_UI | Audit Issue"
+        STATUS="Status: [⚠️] v1.6 | 🌡️ $T_UI | Audit Issue"
     else
-        STATUS="Status: [🚀] v1.6-B5 | 🛡️ All Pass | 🌡️ $T_UI"
+        STATUS="Status: [🚀] v1.6 STABLE | 🛡️ All Pass | 🌡️ $T_UI"
     fi
     sed -i "s/^description=.*/description=$STATUS/" "$PROP_FILE"
 }
