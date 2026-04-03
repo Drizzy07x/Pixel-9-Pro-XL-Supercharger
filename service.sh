@@ -1,6 +1,6 @@
 #!/system/bin/sh
 # =============================================================
-# PIXEL 9 PRO SERIES SUPERCHARGER v2.0-BETA.2
+# PIXEL 9 PRO SERIES SUPERCHARGER v2.0-BETA.3
 # Maximum Efficiency Architecture - Developed by: Drizzy_07
 # =============================================================
 
@@ -35,7 +35,7 @@ verify_prop() {
 # --- 2. LOG INITIALIZATION ---
 if [ ! -f "$LOG_FILE" ]; then touch "$LOG_FILE"; chmod 0666 "$LOG_FILE"; fi
 echo "===============================================" > "$LOG_FILE"
-echo "   SUPERCHARGER v2.0-BETA.2 DEEP AUDIT" >> "$LOG_FILE"
+echo "   SUPERCHARGER v2.0-BETA.3 DEEP AUDIT" >> "$LOG_FILE"
 echo "   Device: Pixel 9 Pro XL (Zumapro/Tensor G4)" >> "$LOG_FILE"
 echo "   Date: $(date)" >> "$LOG_FILE"
 echo "===============================================" >> "$LOG_FILE"
@@ -109,7 +109,7 @@ verify_tweak "TCP Fast Open" "/proc/sys/net/ipv4/tcp_fastopen" "3"
 verify_tweak "TCP Read Buffer" "/proc/sys/net/ipv4/tcp_rmem" "87380"
 verify_tweak "TCP Write Buffer" "/proc/sys/net/ipv4/tcp_wmem" "16384"
 
-# --- 7. SMART IRQ BALANCE (Android 16 GKI Adapted) ---
+# --- 7. SMART IRQ BALANCE (Android 16 Extraction Method) ---
 echo "" >> "$LOG_FILE"
 echo "[🚧] SMART IRQ AFFINITY AUDIT:" >> "$LOG_FILE"
 
@@ -118,19 +118,23 @@ echo "[PASS] IRQ Balancer: Daemon stopped" >> "$LOG_FILE"
 
 IRQ_EFF=0; IRQ_MID=0; IRQ_PERF=0
 
+# Default all IRQs to Efficiency Cores (Mask 7f)
 for irq in /proc/irq/*; do
     [ -f "$irq/smp_affinity" ] && echo "7f" > "$irq/smp_affinity" 2>/dev/null && IRQ_EFF=$((IRQ_EFF + 1))
 done
 
-for irq in /proc/irq/*; do
-    # Mid-Cores (Storage & Network based on Android 16 naming)
-    if grep -q -iE "ufshcd|exynos-pcie|dhdpcie" "$irq/name" 2>/dev/null; then
-        echo "70" > "$irq/smp_affinity" 2>/dev/null
+# Parse /proc/interrupts to extract exact IRQ numbers for Mid-Cores (Storage & Network)
+for irq_num in $(grep -iE "ufshcd|exynos-pcie|dhdpcie" /proc/interrupts 2>/dev/null | awk -F: '{print $1}' | tr -d ' '); do
+    if [ -f "/proc/irq/$irq_num/smp_affinity" ]; then
+        echo "70" > "/proc/irq/$irq_num/smp_affinity" 2>/dev/null
         IRQ_MID=$((IRQ_MID + 1))
     fi
-    # Perf-Cores (Touchpanel based on Synaptics controller)
-    if grep -q -iE "synaptics_tcm" "$irq/name" 2>/dev/null; then
-        echo "f0" > "$irq/smp_affinity" 2>/dev/null
+done
+
+# Parse /proc/interrupts to extract exact IRQ number for Perf-Cores (Touchpanel)
+for irq_num in $(grep -iE "synaptics_tcm" /proc/interrupts 2>/dev/null | awk -F: '{print $1}' | tr -d ' '); do
+    if [ -f "/proc/irq/$irq_num/smp_affinity" ]; then
+        echo "f0" > "/proc/irq/$irq_num/smp_affinity" 2>/dev/null
         IRQ_PERF=$((IRQ_PERF + 1))
     fi
 done
@@ -144,9 +148,9 @@ update_dashboard() {
     T_RAW=$(cat /sys/class/power_supply/battery/temp)
     T_UI="$((T_RAW / 10)).$((T_RAW % 10))°C"
     if grep -q "FAIL" "$LOG_FILE"; then
-        STATUS="Status: [⚠️] v2.0-B2 | 🌡️ $T_UI | Audit Issue"
+        STATUS="Status: [⚠️] v2.0-B3 | 🌡️ $T_UI | Audit Issue"
     else
-        STATUS="Status: [🚀] v2.0-B2 | 🛡️ All Pass | 🌡️ $T_UI"
+        STATUS="Status: [🚀] v2.0-B3 | 🛡️ All Pass | 🌡️ $T_UI"
     fi
     sed -i "s/^description=.*/description=$STATUS/" "$PROP_FILE"
 }
