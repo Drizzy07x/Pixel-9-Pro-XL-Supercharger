@@ -1,21 +1,30 @@
-# Changelog
+# 🚀 Supercharger v1.6 STABLE
 
-All notable changes to the **Pixel 9 Pro Series Supercharger** will be documented in this file.
+After rigorous beta testing, version 1.6 is officially ready for daily use. This monumental update shifts the module from standard script execution to an **Intelligent Hardware Architecture**, explicitly optimized for the Pixel 9 Pro XL's Tensor G4 (Zumapro) kernel.
 
-## [1.5.1 Stable] - 2026-03-31
-### **Fixed**
-* **Performance Regression**: Disabled `powersave_bias` on high-performance CPU clusters (P4/P7) to fix system hangs and freezes.
-* **I/O Bottleneck**: Increased `nr_requests` to 256 and `read_ahead_kb` to 1024 for smoother UFS 4.0 data throughput.
-* **Memory Management**: Adjusted `dirty_ratio` and `swappiness` to better utilize the 16GB LPDDR5X stack.
-* **Encoding Fix**: Optimized `debug.log` output to prevent character encoding issues in text editors.
+## 🛠️ What's New in v1.6
 
-## [1.5 Stable] - 2026-03-31
-### **Added**
-* **Dynamic Dashboard**: Real-time status updates in Magisk/KSU description.
-* **Live Temp Monitoring**: 60s SoC temperature refresh loop.
-* **TCP Race to Sleep**: Fast Open and Low Latency network tweaks.
+### 🛡️ Deep Audit Engine
+* **Military-Grade Logging**: The module now features a Deep Audit Engine. Check your `debug.log` to see a detailed `[PASS/FAIL]` report of every hardware and software tweak applied to your device.
+* **Prop Verification**: The engine natively verifies Android `resetprop` injections, ensuring the 16GB RAM profile and SkiaVK UI are completely active.
 
-## [1.4 Stable] - 2026-03-30
-* Initial release for Pixel 9 Pro XL.
-* Basic Dalvik and I/O optimizations.
-  
+### 🧠 Smart Storage Engine
+* **Intelligent Pivot**: Dropped infinite system-fighting loops to save battery. The engine now accepts Google's UFS 4.0 physical Queue Depth limit but compensates by massively boosting `read_ahead_kb` to **1024**.
+* **Result**: Lightning-fast I/O operations and app loading times with zero battery drain.
+
+### 🌐 Smart Network Engine
+* **Cubic Optimization**: Specifically tuned the `cubic` congestion control for mobile networks.
+* **Socket Reuse**: Enabled `tcp_tw_reuse` to instantly recycle dead connections, drastically dropping latency, lag spikes, and ping on 5G and Wi-Fi networks.
+
+### 🚧 Smart IRQ Balancing
+* **Hardware Node Tracking**: The custom IRQ balancer now counts and displays the exact number of hardware nodes assigned to specific cores.
+* **Touch Priority**: Forced touchpanel interrupts to the Performance Cores (`f0` mask) for absolute zero-lag scrolling.
+* **Efficiency**: Network and I/O processes are offloaded to Mid and Efficiency cores, allowing the Cortex-X4 Prime core to enter Deep Sleep faster.
+
+### 🏗️ Global Re-Write
+* **English Standard**: The entire codebase, internal logic, and logs have been rewritten in professional technical English.
+
+---
+**Build Code**: 161
+**Status**: Stable Release
+**Compatibility**: Pixel 9, Pixel 9 Pro, Pixel 9 Pro XL, Pixel 9 Pro Fold (Tensor G4)
