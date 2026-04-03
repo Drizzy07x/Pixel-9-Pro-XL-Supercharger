@@ -1,7 +1,7 @@
 #!/system/bin/sh
 # =============================================================
-# PIXEL 9 PRO SERIES SUPERCHARGER v1.6 STABLE
-# Intelligent Pivot & Deep Audit - Developed by: Drizzy_07
+# PIXEL 9 PRO SERIES SUPERCHARGER v2.0-BETA.1
+# Maximum Efficiency Architecture - Developed by: Drizzy_07
 # =============================================================
 
 MODDIR=${0%/*}
@@ -35,7 +35,7 @@ verify_prop() {
 # --- 2. LOG INITIALIZATION ---
 if [ ! -f "$LOG_FILE" ]; then touch "$LOG_FILE"; chmod 0666 "$LOG_FILE"; fi
 echo "===============================================" > "$LOG_FILE"
-echo "   SUPERCHARGER v1.6 STABLE DEEP AUDIT" >> "$LOG_FILE"
+echo "   SUPERCHARGER v2.0-BETA.1 DEEP AUDIT" >> "$LOG_FILE"
 echo "   Device: Pixel 9 Pro XL (Zumapro/Tensor G4)" >> "$LOG_FILE"
 echo "   Date: $(date)" >> "$LOG_FILE"
 echo "===============================================" >> "$LOG_FILE"
@@ -43,9 +43,9 @@ echo "===============================================" >> "$LOG_FILE"
 # --- 3. BOOT DETECTION ---
 until [ "$(getprop sys.boot_completed)" = "1" ]; do sleep 2; done
 sleep 30 
-echo "[✅] System ready. Deploying Smart Engine..." >> "$LOG_FILE"
+echo "[✅] System ready. Deploying v2.0 Efficiency Engines..." >> "$LOG_FILE"
 
-# --- 4. LEGACY 1.5.1 & 16GB RAM PROFILE ---
+# --- 4. LEGACY SYSTEM & 16GB RAM PROFILE ---
 echo "" >> "$LOG_FILE"
 echo "[🧠] SYSTEM & RAM AUDIT:" >> "$LOG_FILE"
 
@@ -63,42 +63,59 @@ verify_prop "UI Renderer" "debug.hwui.renderer" "skiavk"
 verify_prop "Touch Latency" "persist.sys.touch.latency" "0"
 verify_prop "Hardware UI" "persist.sys.ui.hw" "1"
 
-# --- 5. SMART STORAGE & VIRTUAL MEMORY ENGINE ---
+# --- 5. SMART STORAGE & ZRAM ENGINE (v2.0) ---
 echo "" >> "$LOG_FILE"
 echo "[⚡] VIRTUAL MEMORY & STORAGE AUDIT:" >> "$LOG_FILE"
 
+# Core VM Tweaks
 echo 60 > /proc/sys/vm/vfs_cache_pressure
 echo 20 > /proc/sys/vm/dirty_ratio
 echo 30 > /proc/sys/vm/swappiness
+
+# ZRAM Compression Optimization (LZ4 is faster for Tensor G4)
+if [ -f "/sys/block/zram0/comp_algorithm" ]; then
+    echo lz4 > /sys/block/zram0/comp_algorithm 2>/dev/null
+    verify_tweak "ZRAM Algorithm" "/sys/block/zram0/comp_algorithm" "lz4"
+fi
 
 verify_tweak "VFS Cache Pressure" "/proc/sys/vm/vfs_cache_pressure" "60"
 verify_tweak "VM Dirty Ratio" "/proc/sys/vm/dirty_ratio" "20"
 verify_tweak "VM Swappiness" "/proc/sys/vm/swappiness" "30"
 
+# Storage Application (Read Ahead + IO Stats Disable)
 for dev in sda sdb sdc; do
     if [ -d "/sys/block/$dev" ]; then
         echo none > "/sys/block/$dev/queue/scheduler"
         echo 1024 > "/sys/block/$dev/queue/read_ahead_kb"
+        echo 0 > "/sys/block/$dev/queue/iostats" 2>/dev/null
         
         verify_tweak "UFS Scheduler ($dev)" "/sys/block/$dev/queue/scheduler" "none"
         verify_tweak "UFS Read Ahead ($dev)" "/sys/block/$dev/queue/read_ahead_kb" "1024"
+        verify_tweak "UFS IO Stats ($dev)" "/sys/block/$dev/queue/iostats" "0"
     fi
 done
 
-# --- 6. SMART NETWORK ENGINE ---
+# --- 6. SMART NETWORK ENGINE (v2.0) ---
 echo "" >> "$LOG_FILE"
 echo "[🌐] NETWORK AUDIT:" >> "$LOG_FILE"
 
+# Base Network Tweaks
 echo "fq" > /proc/sys/net/core/default_qdisc
 sleep 1
 echo "cubic" > /proc/sys/net/ipv4/tcp_congestion_control
 echo 1 > /proc/sys/net/ipv4/tcp_tw_reuse
 echo 3 > /proc/sys/net/ipv4/tcp_fastopen
 
+# Advanced Mobile Data Buffers (Optimized for 5G Elasticity)
+echo "4096 87380 16777216" > /proc/sys/net/ipv4/tcp_rmem
+echo "4096 16384 16777216" > /proc/sys/net/ipv4/tcp_wmem
+
 verify_tweak "Network Qdisc" "/proc/sys/net/core/default_qdisc" "fq"
 verify_tweak "TCP Congestion" "/proc/sys/net/ipv4/tcp_congestion_control" "cubic"
 verify_tweak "TCP Socket Reuse" "/proc/sys/net/ipv4/tcp_tw_reuse" "1"
 verify_tweak "TCP Fast Open" "/proc/sys/net/ipv4/tcp_fastopen" "3"
+verify_tweak "TCP Read Buffer" "/proc/sys/net/ipv4/tcp_rmem" "87380"
+verify_tweak "TCP Write Buffer" "/proc/sys/net/ipv4/tcp_wmem" "16384"
 
 # --- 7. SMART IRQ BALANCE ---
 echo "" >> "$LOG_FILE"
@@ -133,9 +150,9 @@ update_dashboard() {
     T_RAW=$(cat /sys/class/power_supply/battery/temp)
     T_UI="$((T_RAW / 10)).$((T_RAW % 10))°C"
     if grep -q "FAIL" "$LOG_FILE"; then
-        STATUS="Status: [⚠️] v1.6 | 🌡️ $T_UI | Audit Issue"
+        STATUS="Status: [⚠️] v2.0-B1 | 🌡️ $T_UI | Audit Issue"
     else
-        STATUS="Status: [🚀] v1.6 STABLE | 🛡️ All Pass | 🌡️ $T_UI"
+        STATUS="Status: [🚀] v2.0-B1 | 🛡️ All Pass | 🌡️ $T_UI"
     fi
     sed -i "s/^description=.*/description=$STATUS/" "$PROP_FILE"
 }
