@@ -21,9 +21,6 @@ After rigorous beta testing, version 1.6 is officially ready for daily use. This
 * **Touch Priority**: Forced touchpanel interrupts to the Performance Cores (`f0` mask) for absolute zero-lag scrolling.
 * **Efficiency**: Network and I/O processes are offloaded to Mid and Efficiency cores, allowing the Cortex-X4 Prime core to enter Deep Sleep faster.
 
-### 🏗️ Global Re-Write
-* **English Standard**: The entire codebase, internal logic, and logs have been rewritten in professional technical English.
-
 ---
 **Build Code**: 161
 **Status**: Stable Release
