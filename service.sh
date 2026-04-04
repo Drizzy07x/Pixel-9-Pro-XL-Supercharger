@@ -2,7 +2,7 @@
 # =============================================================
 # PIXEL 9 PRO SERIES SUPERCHARGER v2.1-STABLE (Optimized)
 # Maximum Efficiency Architecture - Developed by: Drizzy_07
-# Refined for Tensor G4 & crDroid 12.8
+# Refined for Tensor G4 & Stock/Custom ROMs
 # =============================================================
 
 MODDIR=${0%/*}
