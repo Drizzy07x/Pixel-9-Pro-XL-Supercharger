@@ -97,7 +97,7 @@ verify_tweak "TCP Fast Open" "/proc/sys/net/ipv4/tcp_fastopen" "3"
 verify_tweak "TCP Read Buffer" "/proc/sys/net/ipv4/tcp_rmem" "87380"
 verify_tweak "TCP Write Buffer" "/proc/sys/net/ipv4/tcp_wmem" "16384"
 
-# --- 7. SMART IRQ BALANCE (Android 16 Extraction Method) ---
+# --- 8. SMART IRQ BALANCE (Android 16 Extraction Method) ---
 echo "" >> "$LOG_FILE"
 echo "[🚧] SMART IRQ AFFINITY AUDIT:" >> "$LOG_FILE"
 
@@ -128,7 +128,7 @@ echo "[PASS] IRQ Efficiency (7f): Applied to $IRQ_EFF nodes" >> "$LOG_FILE"
 echo "[PASS] IRQ Mid-Cores (70): Applied to $IRQ_MID nodes (I/O & Network)" >> "$LOG_FILE"
 echo "[PASS] IRQ Perf-Cores (f0): Applied to $IRQ_PERF nodes (Touch)" >> "$LOG_FILE"
 
-# --- 8. DASHBOARD ENGINE ---
+# --- 9. DASHBOARD ENGINE ---
 update_dashboard() {
     T_RAW=$(cat /sys/class/power_supply/battery/temp)
     T_UI="$((T_RAW / 10)).$((T_RAW % 10))°C"
@@ -147,7 +147,7 @@ update_dashboard() {
     done
 ) &
 
-# --- 9. ASYNC MAINTENANCE ---
+# --- 10. ASYNC MAINTENANCE ---
 (
     sleep 180
     find /data/data -name "*.db" -type f -not -path "*com.android.providers.media*" 2>/dev/null | while read -r db; do
