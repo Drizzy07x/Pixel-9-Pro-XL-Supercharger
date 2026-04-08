@@ -105,7 +105,7 @@ wait_for_full_boot() {
         log_line "[PASS] Boot animation finished"
     fi
 
-    sleep 40
+    sleep 15
     return 0
 }
 
@@ -197,8 +197,8 @@ log_line "[PASS] IRQ Mid-Cores (70): applied to $IRQ_MID nodes"
 log_line "[PASS] IRQ Perf-Cores (f0): applied to $IRQ_PERF nodes"
 
 (
-    sleep 60
-    log_line "[INFO] Updating Magisk dashboard after post-boot grace period"
+    sleep 15
+    log_line "[INFO] Updating Magisk dashboard after short post-boot grace period"
     update_dashboard
 ) &
 
