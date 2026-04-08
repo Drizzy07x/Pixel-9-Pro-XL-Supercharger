@@ -1,0 +1,47 @@
+name: Supercharger Auto-Release Engine
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Extract Version Info
+        id: version_logic
+        run: |
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          if [[ "$TAG_NAME" == *"-beta"* ]]; then
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+            echo "release_title=Pixel 9 Pro Series Supercharger $TAG_NAME (Beta)" >> $GITHUB_OUTPUT
+          else
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+            echo "release_title=Pixel 9 Pro Series Supercharger $TAG_NAME" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Module ZIP
+        run: |
+          zip -r "Supercharger-${{ steps.version_logic.outputs.tag_name }}.zip" . \
+          -x ".git/*" ".github/*" ".gitignore" "README.md" "LICENSE" "changelog.md"
+
+      - name: Publish Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Supercharger-${{ steps.version_logic.outputs.tag_name }}.zip
+          name: ${{ steps.version_logic.outputs.release_title }}
+          tag_name: ${{ steps.version_logic.outputs.tag_name }}
+          prerelease: ${{ steps.version_logic.outputs.is_prerelease }}
+          generate_release_notes: true
+          make_latest: ${{ steps.version_logic.outputs.is_prerelease == 'false' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
