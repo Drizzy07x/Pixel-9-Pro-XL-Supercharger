@@ -1,8 +1,8 @@
 # 🚀 Pixel 9 Pro Series Supercharger v2.2 STABLE
 
 [![Device](https://img.shields.io/badge/Device-Pixel_9_Pro_Series-blue?logo=google&logoColor=white)](https://store.google.com/)
-[![SoC](https://img.shields.io/badge/SoC-Tensor_G4-orange)](https://github.com/Drizzy07x/Pixel-9-Pro-XL-Supercharger)
-[![Version](https://img.shields.io/badge/Version-v2.2_STABLE-green)](https://github.com/Drizzy07x/Pixel-9-Pro-XL-Supercharger)
+[![SoC](https://img.shields.io/badge/SoC-Tensor_G4-orange)](https://github.com/Drizzy07x/Supercharger_Pixel_9_Pro_Series)
+[![Version](https://img.shields.io/badge/Version-v2.2_STABLE-green)](https://github.com/Drizzy07x/Supercharger_Pixel_9_Pro_Series)
 
 **Developed by:** [Drizzy07x](https://github.com/Drizzy07x)  
 **Target devices:** Pixel 9 Pro XL (`komodo`), Pixel 9 Pro (`caiman`), Pixel 9 (`comet`)  
@@ -31,28 +31,30 @@ This keeps the memory profile stable from the start and avoids the instability t
 The module applies conservative virtual-memory and storage tuning after boot:
 
 - `vfs_cache_pressure=60`
-- `dirty_ratio=20`
-- `swappiness=30`
-- UFS scheduler set to `none` when supported
-- UFS read-ahead set to `1024` KB when supported
+- `dirty_background_ratio=5`
+- `dirty_ratio=12`
+- `swappiness=30` only when swap or zram is active
+- Dynamic block-device detection
+- `read_ahead_kb=256` when supported
 
 Every write is validated first, so unsupported kernels are skipped cleanly and reported in the audit log.
 
 ### 3. 🌐 Network Profile
 The networking stack is tuned for stable burst performance:
 
-- `default_qdisc=fq`
-- `tcp_congestion_control=cubic`
-- `tcp_tw_reuse=1`
-- `tcp_fastopen=3`
-- Larger `tcp_rmem` and `tcp_wmem` buffers
+- `default_qdisc=fq` when supported
+- `tcp_congestion_control=cubic` only when available
+- `tcp_fastopen=1` when supported
 
-### 4. 🎮 IRQ Affinity Routing
-The module rebalances IRQ affinity to reduce contention between touch, I/O, and the rest of the system:
+Aggressive overrides were removed to keep the profile cleaner and safer for daily use.
 
-- Generic IRQ nodes are moved to an efficiency mask where writable
-- Storage and network related IRQs are pushed toward mid cores
-- Touch-related IRQs are pushed toward performance cores when detected
+### 4. 🎮 Selective IRQ Affinity
+IRQ tuning is now selective instead of global:
+
+- Storage-related IRQs are tuned only when matching real kernel entries
+- Network-related IRQs are tuned only when matching real kernel entries
+- Touch-related IRQs are tuned only when matching real kernel entries
+- High battery temperature triggers a thermal guard that skips heavier I/O and IRQ tuning
 
 ---
 
@@ -61,9 +63,10 @@ Supercharger updates the Magisk dashboard **once**, after Android has fully fini
 
 - It waits for `sys.boot_completed=1`
 - It checks `init.svc.bootanim=stopped` when available
-- It adds a post-boot grace delay before updating the dashboard
-- It reads battery temperature only once for that final dashboard update
+- It adds a short post-boot grace delay before updating the dashboard
+- It reads battery temperature only once for the final dashboard update
 - It shows a warning if any `[FAIL]` entry appears in `debug.log`
+- It avoids rewriting `module.prop` when the description is already correct
 
 This keeps the dashboard informative without running a permanent loop that wastes battery.
 
@@ -86,13 +89,13 @@ su -c cat /data/adb/modules/p9pxl_supercharger/debug.log
 1. Download `Supercharger-v2.2.zip`.
 2. Flash it from **Magisk** or **KernelSU**.
 3. Reboot the device.
-4. Wait about 1 to 2 minutes after the lockscreen appears.
+4. Wait a short moment after the lockscreen appears.
 5. Open Magisk and confirm the dashboard status changed from boot-waiting to the final result.
 
 ---
 
 ## ⚠️ Disclaimer
-This module is meant for advanced users. Even though `v2.2 STABLE` is more defensive than earlier builds, kernel behavior can still vary across ROMs and vendor configurations. Always keep a backup and test carefully after flashing.
+This module is meant for advanced users. `v2.2 STABLE` is tuned to be more defensive and device-aware than earlier builds, but kernel behavior can still vary across ROMs and vendor configurations. Always keep a backup and test carefully after flashing.
 
 ---
 

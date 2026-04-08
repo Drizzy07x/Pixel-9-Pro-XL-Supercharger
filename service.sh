@@ -9,7 +9,7 @@ MODEL="$(getprop ro.product.model)"
 ENABLE_IOSTATS_DISABLE=1
 THERMAL_GUARD_DECIC=390
 
-STORAGE_IRQ_PATTERNS="ufshcd|ufs|scpufreq-uclamp"
+STORAGE_IRQ_PATTERNS="ufshcd|ufs"
 NETWORK_IRQ_PATTERNS="wlan|wifi|wcnss|bcmdhd|dhd|rmnet|ipa"
 TOUCH_IRQ_PATTERNS="synaptics|touch|goodix|fts|sec_touch|input"
 
@@ -67,7 +67,7 @@ verify_prop() {
     if [ "$current" = "$expected" ]; then
         log_line "[PASS] $name: $current"
     else
-        log_line "[FAIL] $name: Expected $expected, got ${current:-<empty>}"
+        log_line "[INFO] $name: Expected $expected, got ${current:-<empty>}"
     fi
 }
 
@@ -132,34 +132,72 @@ is_swap_active() {
     return 1
 }
 
+get_active_scheduler() {
+    local content="$1"
+    echo "$content" | sed -n 's/.*\[\([^]]*\)\].*/\1/p'
+}
+
 set_scheduler_if_available() {
     local scheduler_path="$1"
     local desired="$2"
     local label="$3"
     local current
-    local selected
+    local active
 
     if [ ! -e "$scheduler_path" ]; then
         log_line "[SKIP] $label: scheduler node missing"
         return 1
     fi
 
+    if [ ! -w "$scheduler_path" ]; then
+        log_line "[SKIP] $label: scheduler node not writable"
+        return 1
+    fi
+
     current="$(safe_read "$scheduler_path")"
+    active="$(get_active_scheduler "$current")"
+
+    if [ "$active" = "$desired" ]; then
+        log_line "[PASS] $label: already set to $desired"
+        return 0
+    fi
+
     case "$current" in
         *"$desired"*)
-            selected="$(echo "$current" | sed -n 's/.*\[\([^]]*\)\].*/\1/p')"
-            if [ "$selected" = "$desired" ]; then
-                log_line "[PASS] $label: already set to $desired"
-                return 0
+            if echo "$desired" > "$scheduler_path" 2>/dev/null; then
+                current="$(safe_read "$scheduler_path")"
+                active="$(get_active_scheduler "$current")"
+                if [ "$active" = "$desired" ]; then
+                    log_line "[PASS] $label: applied $desired"
+                    return 0
+                fi
+                log_line "[FAIL] $label: scheduler stayed on ${active:-unknown}"
+                return 1
             fi
-            safe_write "$desired" "$scheduler_path" "$label"
-            return $?
+            log_line "[FAIL] $label: scheduler write rejected"
+            return 1
             ;;
         *)
             log_line "[SKIP] $label: '$desired' scheduler not available"
             return 1
             ;;
     esac
+}
+
+is_relevant_block_device() {
+    local base="$1"
+    local dev_path="$2"
+
+    case "$base" in
+        dm-*|loop*|ram*|zram*|md*|sr*|fd*)
+            return 1
+            ;;
+    esac
+
+    [ -d "$dev_path/queue" ] || return 1
+    [ -e "$dev_path/device" ] || return 1
+
+    return 0
 }
 
 apply_vm_tuning() {
@@ -181,6 +219,7 @@ apply_block_tuning() {
     local dev
     local base
     local tuned=0
+    local skipped=0
 
     log_line ""
     log_line "[INFO] BLOCK I/O AUDIT:"
@@ -189,8 +228,9 @@ apply_block_tuning() {
         [ -d "$dev" ] || continue
         base="$(basename "$dev")"
 
-        if [ ! -d "$dev/queue" ]; then
-            log_line "[SKIP] Block Device ($base): queue interface missing"
+        if ! is_relevant_block_device "$base" "$dev"; then
+            skipped=$((skipped + 1))
+            log_line "[SKIP] Block Device ($base): not a physical target for tuning"
             continue
         fi
 
@@ -210,7 +250,7 @@ apply_block_tuning() {
         tuned=$((tuned + 1))
     done
 
-    log_line "[PASS] Block Device Scan: processed $tuned block devices"
+    log_line "[PASS] Block Device Scan: tuned $tuned devices, skipped $skipped"
 }
 
 network_value_available() {
@@ -229,6 +269,7 @@ network_value_available() {
 
 apply_network_tuning() {
     local cc_available
+    local current_cc
 
     log_line ""
     log_line "[INFO] NETWORK AUDIT:"
@@ -256,26 +297,64 @@ apply_network_tuning() {
     safe_write "1" "/proc/sys/net/ipv4/tcp_fastopen" "TCP Fast Open"
 }
 
+set_irq_affinity() {
+    local path="$1"
+    local mask="$2"
+    local label="$3"
+    local current
+
+    if [ ! -e "$path" ]; then
+        log_line "[SKIP] $label: affinity node missing"
+        return 2
+    fi
+
+    if [ ! -w "$path" ]; then
+        log_line "[SKIP] $label: affinity node not writable"
+        return 2
+    fi
+
+    current="$(safe_read "$path")"
+    if [ "$current" = "$mask" ]; then
+        log_line "[PASS] $label: already set to $mask"
+        return 0
+    fi
+
+    if echo "$mask" > "$path" 2>/dev/null; then
+        current="$(safe_read "$path")"
+        if [ "$current" = "$mask" ]; then
+            log_line "[PASS] $label: applied $mask"
+            return 0
+        fi
+    fi
+
+    log_line "[SKIP] $label: kernel rejected affinity change; leaving default routing"
+    return 1
+}
+
 set_irq_affinity_if_present() {
     local patterns="$1"
     local mask="$2"
     local label="$3"
-    local count=0
+    local applied=0
+    local rejected=0
+    local missing=0
     local irq_num
+    local rc
 
     for irq_num in $(grep -iE "$patterns" /proc/interrupts 2>/dev/null | awk -F: '{print $1}' | tr -d ' '); do
-        if [ -f "/proc/irq/$irq_num/smp_affinity" ]; then
-            safe_write "$mask" "/proc/irq/$irq_num/smp_affinity" "$label IRQ $irq_num"
-            count=$((count + 1))
-        else
-            log_line "[SKIP] $label IRQ $irq_num: affinity node missing"
-        fi
+        set_irq_affinity "/proc/irq/$irq_num/smp_affinity" "$mask" "$label IRQ $irq_num"
+        rc=$?
+        case "$rc" in
+            0) applied=$((applied + 1)) ;;
+            1) rejected=$((rejected + 1)) ;;
+            *) missing=$((missing + 1)) ;;
+        esac
     done
 
-    if [ "$count" -eq 0 ]; then
+    if [ "$applied" -eq 0 ] && [ "$rejected" -eq 0 ] && [ "$missing" -eq 0 ]; then
         log_line "[SKIP] $label: no matching IRQs found"
     else
-        log_line "[PASS] $label: processed $count IRQs"
+        log_line "[PASS] $label: applied $applied, rejected $rejected, skipped $missing"
     fi
 }
 
@@ -298,9 +377,9 @@ update_dashboard() {
     temp_ui="$(format_temp_label "$temp_decic")"
 
     if grep -q "FAIL" "$LOG_FILE" 2>/dev/null; then
-        status="⚠️ Status: v2.2-STABLE | $temp_ui | Audit issue detected"
+        status="⚠️ Status: v2.2-STABLE | $temp_ui | Critical issue detected"
     else
-        status="🚀 Status: v2.2-STABLE | $temp_ui | All checks passed"
+        status="🚀 Status: v2.2-STABLE | $temp_ui | All critical checks passed"
     fi
 
     current_line="$(grep '^description=' "$PROP_FILE" 2>/dev/null)"

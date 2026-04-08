@@ -1,36 +1,68 @@
-# 📑 Changelog - Pixel 9 Pro XL Supercharger
+# 📝 Changelog - Pixel 9 Pro Series Supercharger
 
-All notable changes to the **Supercharger** project will be documented in this file.
+All notable changes to **Supercharger** are documented here.
+
+---
+
+## [v2.2 STABLE] - 2026-04-08
+
+This release focuses on refining the module instead of adding more aggressive tweaks.  
+The goal of v2.2 is to deliver a cleaner, safer, and more device-aware tuning profile for daily use on the **Pixel 9 Pro XL / Pixel 9 Pro series**.
+
+### Highlights
+- Removed overly aggressive global IRQ behavior
+- Switched to more selective and safer tuning logic
+- Improved thermal awareness to protect stability and battery life
+- Reduced unnecessary boot-time writes
+- Kept the module focused on real-world smoothness instead of excessive tweaking
+
+### Changes
+- Removed global IRQ affinity application across all IRQ nodes
+- Moved toward selective IRQ handling for relevant hardware only
+- Reworked block I/O tuning to detect valid block devices dynamically
+- Reduced `read_ahead_kb` defaults for a more balanced storage profile
+- Added safer scheduler validation before applying block scheduler changes
+- Improved VM tuning with more conservative dirty memory behavior
+- Applied `swappiness` only when swap/zram is actually active
+- Cleaned up network tuning by removing unnecessary aggressive overrides
+- Added thermal guard logic to skip heavier tweaks when battery temperature is high
+- Reduced redundant writes during boot by making settings conditional
+- Kept Dalvik/ART checks as audit-only for safer daily operation
+- Improved dashboard update behavior to avoid unnecessary `module.prop` rewrites
+
+### Focus of this release
+- Better daily stability
+- Better thermal consistency
+- Lower risk of battery drain
+- Cleaner boot behavior
+- More reliable device-aware tuning
+
+### Notes
+This update is designed to make the module smarter, not harsher.  
+Instead of stacking more tweaks, v2.2 improves how and when tuning is applied, with a stronger focus on efficiency, safety, and consistency for everyday use.
 
 ---
 
 ## [v2.1 STABLE] - 2026-04-04
 ### 🚀 Major Architecture Overhaul
-* **Migrated Memory Tweaks to `system.prop`:** Moved `dalvik.vm` heap configurations from late-stage shell injection (`service.sh`) to early-boot injection. This prevents the **SIGABRT (Signal 6) Zygote64** crashes caused by hot-swapping VM parameters on Android 16.
-* **Stable 16GB RAM Profile:** Successfully implemented a 1024MB Max Heap size, allowing the Pixel 9 Pro XL to fully utilize its physical memory without UI stutter or background app kills.
+- Moved `dalvik.vm` heap configuration from late shell injection in `service.sh` into `system.prop` for early injection.
+- Stabilized the 16 GB RAM profile with a `1024m` max heap target.
 
-### 🛠️ Refinements & Fixes
-* **Vulkan Renderer Removal:** Deprecated the forced `skiavk` (Vulkan) injection. Reverting to the native crDroid OpenGL/SkiaGL backend resolved the "Reliable surface detection" errors and fixed UI jank.
-* **Smart IRQ Balancing v2:** Optimized interrupt masks specifically for the **Tensor G4 (Zumapro)**. 
-    * Touch Panel (`synaptics_tcm`) now has exclusive access to Prime Cores.
-    * Network and UFS interrupts isolated to Mid Cores to maintain thermal efficiency.
-* **TCP Stack Stabilization:** Locked congestion control to `cubic` to ensure 100% compatibility with Stock and Custom kernels while maintaining high-burst network buffers (16MB).
-* **Enhanced Audit Engine:** Added "Read-Only" property verification in `service.sh` to monitor the success of `system.prop` injections without interfering with the system server.
+### 🛠️ Refinements and Fixes
+- Removed the forced Vulkan renderer tweak to avoid UI issues on Android 16.
+- Improved IRQ balancing for Tensor G4.
+- Locked network congestion control to `cubic` for broad compatibility.
+- Added read-only verification for injected properties.
 
 ### 🧹 Cleanup
-* Removed experimental LMKD (Low Memory Killer) tweaks that caused system instability on Android 16 QPR2.
-* Consolidated UFS 4.0 block optimizations across `sda`, `sdb`, and `sdc` nodes.
+- Removed unstable LMKD experiments.
+- Consolidated UFS tuning logic across `sda`, `sdb`, and `sdc`.
 
 ---
 
 ## [v2.0] - 2026-03-31
 ### ✨ Initial Tensor G4 Release
-* **Introduction of Smart IRQ Balance:** First implementation of manual interrupt affinity for Pixel 9 series.
-* **UFS 4.0 Supercharging:** Initial implementation of `none` scheduler and `read_ahead` optimizations.
-* **Smart Network Engine:** Deployment of `fq` qdisc and increased TCP window sizes.
-* **Maintenance Automation:** Added background SQLite vacuuming and reindexing for app database health.
-
----
-
-> **Reflecting on v2.1:** This update marks the move from "Experimental" to "Production-Ready." By understanding the boot-sequence of Android 16, we've achieved maximum performance without compromising the integrity of the system framework.
-> 
+- Introduced manual IRQ affinity tuning for the Pixel 9 series.
+- Added first-pass UFS scheduler and read-ahead tuning.
+- Added network tuning with `fq` and larger TCP buffers.
+- Introduced the deep audit log workflow.
