@@ -28,7 +28,7 @@ safe_write_if_needed() {
     local current
 
     if [ ! -e "$path" ]; then
-        log_line "[SKIP] $label: path not found ($path)"
+        log_line "[SKIP] $label: path unavailable ($path)"
         return 1
     fi
 
@@ -53,7 +53,7 @@ safe_write_if_needed() {
         return 1
     fi
 
-    log_line "[FAIL] $label: write rejected"
+    log_line "[FAIL] $label: write rejected by kernel"
     return 1
 }
 
@@ -67,7 +67,7 @@ verify_prop() {
     if [ "$current" = "$expected" ]; then
         log_line "[PASS] $label: $current"
     else
-        log_line "[FAIL] $label: Expected $expected, got ${current:-<empty>}"
+        log_line "[FAIL] $label: expected $expected, got ${current:-<empty>}"
     fi
 }
 
@@ -96,7 +96,7 @@ format_temp_label() {
     local frac
 
     if [ -z "$decic" ]; then
-        echo "temp unavailable"
+        echo "Temp Unavailable"
         return 0
     fi
 
@@ -126,9 +126,9 @@ get_dashboard_status() {
 
     temp_ui="$(format_temp_label "$temp_decic")"
     if grep -q "FAIL" "$LOG_FILE" 2>/dev/null; then
-        echo "Status: [WARN] v2.3-BETA.1 | ${temp_ui} | Critical issue detected"
+        echo "⚠️ Status: v2.3-STABLE | ${temp_ui} | Audit Issue Detected"
     else
-        echo "Status: [OK] v2.3-BETA.1 | ${temp_ui} | All critical checks passed"
+        echo "🚀 Status: v2.3-STABLE | ${temp_ui} | Profile Active"
     fi
 }
 
@@ -190,7 +190,7 @@ start_temp_dashboard_updater() {
 wait_for_full_boot() {
     local boot_wait=0
 
-    log_line "[INFO] Waiting for full Android boot..."
+    log_line "[INFO] ⏳ Waiting for full Android boot"
     until [ "$(getprop sys.boot_completed)" = "1" ] || [ "$boot_wait" -ge 180 ]; do
         sleep 2
         boot_wait=$((boot_wait + 2))
@@ -210,7 +210,7 @@ wait_for_full_boot() {
     if [ "$(getprop init.svc.bootanim)" = "stopped" ]; then
         log_line "[PASS] Boot animation finished"
     else
-        log_line "[SKIP] Boot animation state unavailable; continuing"
+        log_line "[SKIP] Boot animation state unavailable; continuing safely"
     fi
 
     sleep 10
@@ -252,12 +252,12 @@ set_scheduler_if_available() {
     local active
 
     if [ ! -e "$scheduler_path" ]; then
-        log_line "[SKIP] $label: scheduler node missing"
+        log_line "[SKIP] $label: scheduler path unavailable"
         return 1
     fi
 
     if [ ! -w "$scheduler_path" ]; then
-        log_line "[SKIP] $label: scheduler node not writable"
+        log_line "[SKIP] $label: scheduler path not writable"
         return 1
     fi
 
@@ -281,11 +281,11 @@ set_scheduler_if_available() {
                 log_line "[FAIL] $label: scheduler stayed on ${active:-unknown}"
                 return 1
             fi
-            log_line "[FAIL] $label: scheduler write rejected"
+            log_line "[FAIL] $label: scheduler write rejected by kernel"
             return 1
             ;;
         *)
-            log_line "[SKIP] $label: '$desired' scheduler not available"
+            log_line "[SKIP] $label: not supported on this kernel"
             return 1
             ;;
     esac
@@ -309,7 +309,7 @@ is_relevant_block_device() {
 
 apply_vm_tuning() {
     log_line ""
-    log_line "[INFO] VIRTUAL MEMORY AUDIT:"
+    log_line "[INFO] 🧠 Virtual Memory Audit"
 
     safe_write_if_needed "/proc/sys/vm/vfs_cache_pressure" "60" "VFS Cache Pressure"
     safe_write_if_needed "/proc/sys/vm/dirty_background_ratio" "5" "VM Dirty Background Ratio"
@@ -324,7 +324,7 @@ apply_vm_tuning() {
 
 apply_page_cluster() {
     log_line ""
-    log_line "[INFO] PAGE CLUSTER AUDIT:"
+    log_line "[INFO] 📦 Page Cluster Audit"
 
     if has_active_swap; then
         safe_write_if_needed "/proc/sys/vm/page-cluster" "0" "VM Page Cluster"
@@ -340,7 +340,7 @@ apply_block_tuning() {
     local skipped=0
 
     log_line ""
-    log_line "[INFO] BLOCK I/O AUDIT:"
+    log_line "[INFO] 💾 Block I/O Audit"
 
     for dev in /sys/block/*; do
         [ -d "$dev" ] || continue
@@ -348,7 +348,7 @@ apply_block_tuning() {
 
         if ! is_relevant_block_device "$base" "$dev"; then
             skipped=$((skipped + 1))
-            log_line "[SKIP] Block Device ($base): not a physical target for tuning"
+            log_line "[SKIP] Block Device ($base): skipped safely"
             continue
         fi
 
@@ -360,7 +360,7 @@ apply_block_tuning() {
         if [ -e "$dev/queue/iostats" ]; then
             safe_write_if_needed "$dev/queue/iostats" "0" "Block IO Stats ($base)"
         else
-            log_line "[SKIP] Block IO Stats ($base): node missing"
+            log_line "[SKIP] Block IO Stats ($base): path unavailable"
         fi
     done
 
@@ -386,26 +386,26 @@ apply_network_tuning() {
     local current_cc
 
     log_line ""
-    log_line "[INFO] NETWORK AUDIT:"
+    log_line "[INFO] 🌐 Network Audit"
 
     safe_write_if_needed "/proc/sys/net/core/default_qdisc" "fq" "Network Qdisc"
 
     cc_available="/proc/sys/net/ipv4/tcp_available_congestion_control"
     if [ -e "$cc_available" ]; then
         if network_value_available "$cc_available" "cubic"; then
-            safe_write_if_needed "/proc/sys/net/ipv4/tcp_congestion_control" "cubic" "TCP Congestion"
+            safe_write_if_needed "/proc/sys/net/ipv4/tcp_congestion_control" "cubic" "TCP Congestion Control"
         else
-            log_line "[SKIP] TCP Congestion: cubic not available"
+            log_line "[SKIP] TCP Congestion Control: not supported on this kernel"
         fi
     elif [ -e "/proc/sys/net/ipv4/tcp_congestion_control" ]; then
         current_cc="$(safe_read /proc/sys/net/ipv4/tcp_congestion_control)"
         if [ "$current_cc" = "cubic" ]; then
-            log_line "[PASS] TCP Congestion: already set to cubic"
+            log_line "[PASS] TCP Congestion Control: already set to cubic"
         else
-            log_line "[SKIP] TCP Congestion: availability unknown on this kernel"
+            log_line "[SKIP] TCP Congestion Control: availability unknown on this kernel"
         fi
     else
-        log_line "[SKIP] TCP Congestion: node missing"
+        log_line "[SKIP] TCP Congestion Control: path unavailable"
     fi
 
     safe_write_if_needed "/proc/sys/net/ipv4/tcp_fastopen" "1" "TCP Fast Open"
@@ -418,12 +418,12 @@ set_irq_affinity_value() {
     local current
 
     if [ ! -e "$path" ]; then
-        log_line "[SKIP] $label: affinity node missing"
+        log_line "[SKIP] $label: affinity path unavailable"
         return 2
     fi
 
     if [ ! -w "$path" ]; then
-        log_line "[SKIP] $label: affinity node not writable"
+        log_line "[SKIP] $label: affinity path not writable"
         return 3
     fi
 
@@ -441,7 +441,7 @@ set_irq_affinity_value() {
         fi
     fi
 
-    log_line "[SKIP] $label: kernel rejected affinity change; leaving default routing"
+    log_line "[SKIP] $label: write rejected by kernel; keeping default routing"
     return 1
 }
 
@@ -476,7 +476,7 @@ apply_irq_affinity() {
 
 apply_selective_irq_affinity() {
     log_line ""
-    log_line "[INFO] SELECTIVE IRQ AFFINITY AUDIT:"
+    log_line "[INFO] 🎯 Selective IRQ Affinity Audit"
 
     apply_irq_affinity "$STORAGE_IRQ_PATTERNS" "70" "Storage/UFS IRQ"
     apply_irq_affinity "$NETWORK_IRQ_PATTERNS" "70" "Wi-Fi/Network IRQ"
@@ -487,27 +487,29 @@ apply_selective_irq_affinity() {
 chmod 0644 "$LOG_FILE" 2>/dev/null
 
 echo "===============================================" > "$LOG_FILE"
-echo "   SUPERCHARGER v2.3-BETA.1 DEEP AUDIT" >> "$LOG_FILE"
-echo "   Device: $MODEL ($DEVICE)" >> "$LOG_FILE"
-echo "   Date: $(date)" >> "$LOG_FILE"
+echo "   🚀 SUPERCHARGER v2.3-STABLE DEEP AUDIT" >> "$LOG_FILE"
+echo "   📱 Device: $MODEL ($DEVICE)" >> "$LOG_FILE"
+echo "   📅 Date: $(date)" >> "$LOG_FILE"
 echo "===============================================" >> "$LOG_FILE"
 
 if ! wait_for_full_boot; then
     log_line ""
-    log_line "[INFO] DASHBOARD AUDIT:"
+    log_line "[INFO] 📋 Dashboard Audit"
     update_dashboard "1" ""
     exit 0
 fi
 
+log_line ""
+log_line "[INFO] 🌡️ Battery Status"
 TEMP_DECIC="$(get_battery_temp_decic)"
 if [ -n "$TEMP_DECIC" ]; then
-    log_line "[PASS] Battery Temp: $(format_temp_label "$TEMP_DECIC")"
+    log_line "[PASS] Battery Temperature: $(format_temp_label "$TEMP_DECIC")"
 else
-    log_line "[SKIP] Battery Temp: sensor unavailable or invalid"
+    log_line "[SKIP] Battery Temperature: sensor unavailable"
 fi
 
 log_line ""
-log_line "[INFO] SYSTEM AND RAM AUDIT:"
+log_line "[INFO] 🔍 System and RAM Audit"
 verify_prop "Dalvik Heap Start" "dalvik.vm.heapstartsize" "32m"
 verify_prop "Dalvik Heap Growth" "dalvik.vm.heapgrowthlimit" "512m"
 verify_prop "Dalvik Heap Size" "dalvik.vm.heapsize" "1024m"
@@ -525,7 +527,7 @@ echo "   AUDIT COMPLETE - PROFILE ACTIVE" >> "$LOG_FILE"
 echo "===============================================" >> "$LOG_FILE"
 
 log_line ""
-log_line "[INFO] DASHBOARD AUDIT:"
+log_line "[INFO] 📋 Dashboard Audit"
 sleep 10
 update_dashboard "1" "$TEMP_DECIC"
 start_temp_dashboard_updater "$TEMP_DECIC"

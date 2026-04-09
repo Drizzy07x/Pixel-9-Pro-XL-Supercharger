@@ -1,49 +1,50 @@
-# 🚀 Pixel 9 Pro Series Supercharger v2.3 BETA.1
+# 🚀 Pixel 9 Pro Series Supercharger v2.3 STABLE
 
 [![Device](https://img.shields.io/badge/Device-Pixel_9_Pro_Series-blue?logo=google&logoColor=white)](https://store.google.com/)
 [![SoC](https://img.shields.io/badge/SoC-Tensor_G4-orange)](https://github.com/Drizzy07x/Supercharger_Pixel_9_Pro_Series)
-[![Version](https://img.shields.io/badge/Version-v2.3_BETA.1-yellow)](https://github.com/Drizzy07x/Supercharger_Pixel_9_Pro_Series)
+[![Version](https://img.shields.io/badge/Version-v2.3_STABLE-green)](https://github.com/Drizzy07x/Supercharger_Pixel_9_Pro_Series)
 
 **Developed by:** [Drizzy07x](https://github.com/Drizzy07x)  
 **Target devices:** Pixel 9 Pro XL (`komodo`), Pixel 9 Pro (`caiman`), Pixel 9 (`comet`)  
-**Channel:** Beta  
+**Channel:** Stable  
 **Compatibility:** Android 16, Magisk, KernelSU
 
 ---
 
 ## ⚡ Vision
-**Supercharger** is a systemless performance module designed specifically for the **Pixel 9 series** on **Tensor G4**. The `v2.3 BETA.1` branch is focused on refining real-world responsiveness with safer, cleaner and more device-aware tuning behavior before it is promoted to stable.
+**Supercharger** is a systemless performance module designed specifically for the **Pixel 9 series** on **Tensor G4**. `v2.3 STABLE` focuses on a cleaner and more consistent daily-use profile: better balance, better audit visibility, and fewer risky or noisy tweaks.
 
 ---
 
-## 🧠 Beta Focus
+## 🧠 Stable Focus
 
-### 1. 🧩 Safer Daily Tuning
-- Fewer unnecessary writes during boot
-- More selective tuning paths
-- Less aggressive behavior on unsupported kernels
+### 1. 🔍 Better Audit Visibility
+- Cleaner `debug.log` structure
+- More readable dashboard status
+- Clear PASS / SKIP / FAIL reporting across all key areas
 
-### 2. 🎯 Device-Aware Targeting
-- Selective IRQ handling for relevant hardware only
-- Cleaner handling of `cpu.uclamp.latency_sensitive`
+### 2. ⚙️ Safer Daily Tuning
+- Conservative VM profile
 - `vm.page-cluster=0` only when swap or zram is active
+- Selective IRQ affinity instead of global routing
+- Best-effort writes that skip safely on unsupported kernels
 
-### 3. 🌡️ Better Runtime Awareness
+### 3. 🌡️ Low-Impact Runtime Behavior
 - Dashboard temperature refresh every 5 minutes
 - Description updates only when needed
-- Lower noise in logs for non-critical skips
+- Lower log noise for expected skips
 
 ---
 
 ## 📊 Magisk Dashboard
-The dashboard still:
+The dashboard:
 
 - waits for full boot
 - shows profile status plus battery temperature
-- updates temperature slowly and conditionally
+- refreshes temperature slowly and conditionally
 - avoids unnecessary `module.prop` rewrites
 
-This keeps the module informative without turning the dashboard logic into a source of battery drain.
+This keeps the module informative without creating needless background churn.
 
 ---
 
@@ -60,8 +61,8 @@ su -c cat /data/adb/modules/p9pxl_supercharger/debug.log
 
 ---
 
-## ⚠️ Beta Notes
-`v2.3 BETA.1` is intended for testing and validation. It is expected to be safer than older experimental builds, but behavior can still vary across kernels and ROMs. Test carefully and keep a backup before flashing.
+## ⚠️ Notes
+`v2.3 STABLE` is the polished daily-use profile built from the lessons of earlier beta tuning. It is intended to feel cleaner, safer, and more predictable across supported Pixel 9 Pro series devices.
 
 ---
 
