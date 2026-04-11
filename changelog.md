@@ -4,6 +4,40 @@ All notable changes to **Supercharger** are documented here.
 
 ---
 
+## [v2.4 STABLE] - 2026-04-11
+
+This stable release focuses on strengthening compatibility, diagnostics, and cross-version resilience while preserving the current performance profile.  
+The goal of `v2.4 STABLE` is to keep the module feeling reliable and well-balanced on **Android 16 QPR3** while improving adaptability and observability for **Android 17**, without introducing harsher tuning.
+
+### Highlights
+- Improved compatibility handling across Android 16 QPR3 and Android 17
+- Added stronger capability detection instead of relying on rigid version-specific behavior
+- Expanded diagnostics and auditing for easier support and troubleshooting
+- Preserved the current stable tuning profile without adding aggressive new tweaks
+- Focused on long-term maintainability and cleaner fallback behavior
+
+### Changes
+- Added a dedicated **System Version Audit** block for Android release, SDK, build, kernel, and device reporting
+- Added a **Compatibility Audit** block to validate available paths, supported options, and kernel-exposed capabilities
+- Improved block I/O compatibility checks with safer scheduler parsing and stricter validation
+- Improved network capability validation before applying supported values
+- Improved compatibility handling for unsupported or unavailable nodes by using safer `SKIP` behavior
+- Preserved `vm.page-cluster=0` only when swap or zram is active
+- Preserved selective IRQ affinity for storage/UFS, Wi-Fi/network, and touch/input
+- Preserved conservative VM, block I/O, and network tuning with cleaner diagnostics
+- Added a more useful support-oriented audit flow for easier comparison between builds
+
+### Focus of this release
+- Better cross-version compatibility
+- Better diagnostics and support visibility
+- Cleaner fallback behavior
+- More maintainable daily-use profile
+- Stable performance without unnecessary expansion of tuning scope
+
+### Notes
+This release does not aim to push performance further through additional tweaks.  
+Instead, it improves how the module detects, validates, and applies its existing profile so it can remain safer, cleaner, and more dependable across future Android updates.
+
 ## [v2.3 STABLE] - 2026-04-09
 
 This stable release keeps the profile conservative, readable, and well-audited.  
