@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<link rel="stylesheet" type="text/css" href="/internal/insets.css" />
+<title>Pixel 9 Series Supercharger</title>
+<style>
+:root{--bg:#071120;--bg2:#0e1b2e;--panel:#101c30;--line:#263a5a;--line2:#3d5e8d;--text:#f4f7ff;--muted:#aebbd0;--muted2:#8290a8;--accent:#8fb7ff;--good:#91e6ae;--warn:#ffd37b;--bad:#ff9f9f;--shadow:0 22px 60px rgba(0,0,0,.34)}
+*{box-sizing:border-box}html,body{min-height:100%}body{margin:0;color:var(--text);font-family:Inter,Roboto,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(900px 700px at 100% 0%,rgba(75,130,210,.20),transparent 48%),radial-gradient(760px 520px at 0% 100%,rgba(30,120,108,.13),transparent 52%),linear-gradient(180deg,var(--bg),var(--bg2));padding:max(92px,calc(env(safe-area-inset-top,0px) + 68px)) 18px max(28px,calc(env(safe-area-inset-bottom,0px) + 24px))}.wrap{max-width:1040px;margin:0 auto}.hero{border:1px solid rgba(95,124,163,.34);border-radius:32px;padding:30px;background:linear-gradient(135deg,rgba(25,42,67,.90),rgba(12,28,37,.78));box-shadow:var(--shadow)}h1{margin:0 0 12px;font-size:clamp(34px,7.4vw,64px);line-height:1.02;letter-spacing:-.045em;font-weight:950}.sub{font-size:19px;line-height:1.5;color:var(--muted);margin:0 0 24px;max-width:780px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.card,.panel{background:linear-gradient(180deg,rgba(14,25,43,.98),rgba(9,16,29,.98));border:1px solid rgba(57,77,111,.62);border-radius:26px}.card{padding:22px}.panel{padding:24px;margin-bottom:18px;box-shadow:0 14px 42px rgba(0,0,0,.22)}.label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted2);font-weight:950;margin-bottom:12px}.value{font-size:24px;line-height:1.12;font-weight:950}.mini{font-size:15.5px;line-height:1.4;color:var(--muted);margin-top:7px}.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:9px 12px;background:rgba(9,17,31,.72);color:var(--muted);font-size:13px;font-weight:850}.pill.good{color:var(--good);border-color:rgba(145,230,174,.35)}.pill.warn{color:var(--warn);border-color:rgba(255,211,123,.35)}.pill.bad{color:var(--bad);border-color:rgba(255,159,159,.38)}.tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:26px 0 18px}button{appearance:none;border:1px solid var(--line);border-radius:18px;background:rgba(16,29,50,.78);color:var(--text);font-size:15.5px;font-weight:900;padding:15px 18px;min-height:50px;cursor:pointer;transition:transform .12s ease,border-color .12s ease,background .12s ease,opacity .12s ease}button:hover{transform:translateY(-1px);border-color:var(--line2)}button:disabled{opacity:.55;cursor:default;transform:none}.tab.active,.logBtn.active{background:rgba(33,55,88,.96);border-color:rgba(143,183,255,.55)}.section{display:none}.section.active{display:block}.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.split{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}.kv{background:rgba(13,23,40,.84);border:1px solid rgba(57,77,111,.50);border-radius:20px;padding:18px}.kv .k{font-size:12px;color:var(--muted2);letter-spacing:.12em;text-transform:uppercase;font-weight:900;margin-bottom:8px}.kv .v{font-size:18px;font-weight:850;line-height:1.25;word-break:break-word}.actionGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.profileGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.profileCard{background:rgba(13,23,40,.84);border:1px solid rgba(57,77,111,.58);border-radius:24px;padding:20px;display:grid;gap:12px}.profileCard.active{border-color:rgba(143,183,255,.78);box-shadow:0 0 0 1px rgba(143,183,255,.18) inset}.profileTitle{font-size:21px;font-weight:950}.profileText{font-size:15px;line-height:1.5;color:var(--muted)}select,input{width:100%;appearance:none;border:1px solid var(--line);border-radius:18px;background:rgba(9,17,31,.78);color:var(--text);font-size:15px;font-weight:800;padding:15px 16px;min-height:50px;outline:none}select:focus,input:focus{border-color:rgba(143,183,255,.60)}.formGrid{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-top:12px}.action{background:rgba(42,72,112,.95);border-color:rgba(143,183,255,.38)}.safe{background:rgba(24,66,50,.72);border-color:rgba(145,230,174,.30)}.warnBtn{background:rgba(90,66,25,.72);border-color:rgba(255,211,123,.32)}.notice{color:var(--muted);font-size:15px;line-height:1.55;margin-top:10px}pre{margin:14px 0 0;background:#07101d;border:1px solid rgba(74,101,141,.52);border-radius:22px;padding:20px;color:#dfe9ff;font-family:"Roboto Mono","SFMono-Regular",Consolas,monospace;font-size:13.5px;line-height:1.48;white-space:pre-wrap;word-break:break-word;max-height:54vh;overflow:auto}.logTabs{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.footer{font-size:13px;color:var(--muted2);line-height:1.5;margin:18px 4px 0}@media(max-width:760px){body{padding-left:14px;padding-right:14px}.hero{padding:22px;border-radius:28px}.grid,.split,.actionGrid,.formGrid,.profileGrid{grid-template-columns:1fr}h1{font-size:36px}.sub{font-size:18px}.card,.panel{padding:20px}.tabs{grid-template-columns:repeat(2,minmax(0,1fr))}button{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <h1>Pixel 9 Series Supercharger</h1>
+    <p class="sub">Performance dashboard, maintenance tools, app optimization, and profile control for the Pixel 9 series.</p>
+    <div class="grid">
+      <div class="card"><div class="label">Status</div><div class="value" id="statusValue">Loading</div><div class="mini" id="statusSub">Reading module state…</div></div>
+      <div class="card"><div class="label">Profile</div><div class="value" id="profileValue">—</div><div class="mini" id="versionValue">—</div></div>
+      <div class="card"><div class="label">Device</div><div class="value" id="deviceValue">—</div><div class="mini" id="deviceSub">—</div></div>
+      <div class="card"><div class="label">Thermal Control</div><div class="value" id="addonValue">—</div><div class="mini" id="addonSub">—</div></div>
+    </div>
+  </section>
+  <nav class="tabs">
+    <button class="tab active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="profiles">Profiles</button>
+    <button class="tab" data-tab="maintenance">Maintenance</button>
+    <button class="tab" data-tab="logs">Logs</button>
+    <button class="tab" data-tab="support">Support</button>
+  </nav>
+  <section id="overview" class="section active">
+    <div class="panel">
+      <div class="row"><span class="pill" id="healthPill">Health: —</span><span class="pill" id="rootPill">Root: —</span><span class="pill" id="tempPill">Temp: —</span><span class="pill" id="updaterPill">Updater: —</span></div>
+      <div class="split">
+        <div class="kv"><div class="k">Kernel</div><div class="v" id="kernelValue">—</div></div>
+        <div class="kv"><div class="k">Build</div><div class="v" id="buildValue">—</div></div>
+        <div class="kv"><div class="k">Storage</div><div class="v" id="storageValue">—</div></div>
+        <div class="kv"><div class="k">Network</div><div class="v" id="networkValue">—</div></div>
+        <div class="kv"><div class="k">Swap</div><div class="v" id="swapValue">—</div></div>
+        <div class="kv"><div class="k">Last Updated</div><div class="v" id="updatedValue">—</div></div>
+      </div>
+    </div>
+  </section>
+  <section id="profiles" class="section">
+    <div class="panel">
+      <div class="label">Profile Control</div>
+      <div class="profileGrid">
+        <div class="profileCard" id="profileActiveSmooth"><div><span class="pill good">Stable</span></div><div class="profileTitle">Active Smooth</div><div class="profileText">Daily profile focused on smoothness, safe boot behavior, and consistent responsiveness.</div><button class="safe" id="setActiveSmoothBtn">Use Active Smooth</button></div>
+        <div class="profileCard" id="profileGaming"><div><span class="pill warn">Experimental</span></div><div class="profileTitle">Performance / Gaming</div><div class="profileText">Experimental profile for gaming sessions. Applies performance VM targets, top-app uclamp boosts, best-effort GPU governor tuning, storage read-ahead floor, BBR when available, stronger IRQ affinity, and Thermal Control gaming sync.</div><button class="warnBtn" id="setGamingBtn">Use Performance / Gaming</button></div>
+      </div>
+      <div class="notice" id="profileNote">Profile changes are saved systemlessly. Reboot before judging behavior. If Thermal Control is installed, Supercharger sends the matching thermal profile request.</div>
+      <pre id="profileBox">No profile action yet.</pre>
+    </div>
+  </section>
+  <section id="maintenance" class="section">
+    <div class="panel"><div class="label">One-Tap Maintenance</div><button class="safe" id="maintenanceAllBtn">Run maintenance</button><div class="notice">Repairs dashboard/API state, clears stale task state, refreshes status, verifies active tuning, generates a support snapshot, and checks running processes.</div><pre id="maintenanceBox">No maintenance task running.</pre></div>
+    <div class="panel"><div class="label">App Optimization</div><div class="actionGrid"><button class="action" id="optimizeAllBtn">Optimize listed apps</button><button class="action" id="optimizeSystemBtn">Optimize safe system apps</button></div><div class="formGrid"><input id="appSearch" type="search" placeholder="Search package name…" autocomplete="off" /><button class="safe" id="refreshAppsBtn">Refresh app list</button></div><div class="formGrid"><select id="appSelect"><option value="">Loading installed apps…</option></select><button class="action" id="optimizeSelectedBtn">Optimize selected app</button></div><div class="notice">Uses Android ART package compile with speed-profile and verify fallback. The list includes user apps plus selected safe system apps such as Pixel Launcher when installed. Protected Android services are excluded.</div><pre id="optimizationBox">Refresh the app list, then choose an optimization action.</pre></div>
+  </section>
+  <section id="logs" class="section"><div class="panel"><div class="label">Logs</div><div class="logTabs"><button class="logBtn active" data-log="debug.log">debug.log</button><button class="logBtn" data-log="debug.previous.log">debug.previous.log</button><button class="logBtn" data-log="maintenance.log">maintenance.log</button><button class="action" id="copyLogBtn">Copy</button></div><pre id="logBox">Loading…</pre></div></section>
+  <section id="support" class="section"><div class="panel"><div class="label">Support Snapshot</div><div class="row"><button class="safe" id="loadSnapshotBtn">Load snapshot</button><button class="action" id="copySnapshotBtn">Copy snapshot</button></div><pre id="snapshotBox">Generate or load a support snapshot.</pre></div></section>
+  <div class="footer">Supercharger uses best-effort writes and safe fallback behavior. If the kernel rejects a node, the module leaves it unchanged.</div>
+</div>
+<script type="module" src="./index.mjs"></script>
+</body>
+</html>

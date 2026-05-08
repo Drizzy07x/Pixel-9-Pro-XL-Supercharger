@@ -1,7 +1,7 @@
 id=p9pxl_supercharger
-name=Pixel 9 Pro Series Supercharger (STABLE)
-version=v2.4 STABLE
-versionCode=240
+name=Pixel 9 Series Supercharger
+version=v2.5
+versionCode=25060
 author=Drizzy_07
-description=⏳ Status: Waiting for full system boot...
-updateJson=https://raw.githubusercontent.com/Drizzy07x/Supercharger_Pixel_9_Pro_Series/v2.4/update.json
+description=Status: v2.5 | Profiles: Active Smooth + Performance/Gaming | Open WebUI
+updateJson=https://raw.githubusercontent.com/Drizzy07x/Supercharger_Pixel_9_Pro_Series/main/update.json
